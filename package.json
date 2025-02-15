@@ -1,0 +1,22 @@
+{
+  "name": "lead-management-be",
+  "version": "1.0.0",
+  "description": "A application that help to manage the leads and to assign the leads to particular users",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "Deepak",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.10.0",
+    "nodemon": "^3.1.9"
+  }
+}
