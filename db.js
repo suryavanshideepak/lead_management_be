@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 
 const mongoURI = 'mongodb://localhost:27017/lead-management'; 
 
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(mongoURI);
 
 const db = mongoose.connection;
 

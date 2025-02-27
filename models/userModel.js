@@ -14,7 +14,7 @@ const userSchema = new Schema({
     },
     role:{
         type: String,
-        default:'Admin'
+        default:'ADMIN'
     },
     created_at: {
         type: Date
@@ -26,5 +26,8 @@ const userSchema = new Schema({
         type:Boolean,
         default:true
     },
+    status:{
+        type: String
+    }
 })
 module.exports = mongoose.model('User',userSchema)
