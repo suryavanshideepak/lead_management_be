@@ -40,7 +40,7 @@ module.exports = {
                     password: hashedPassword,
                     name: name,
                     role: 'USER',
-                    status: status ? status : 'ACTIVE'
+                    status: status ? status : 'PENDING'
                 })
                 if(createUser){
                     return res.status(200).json({
