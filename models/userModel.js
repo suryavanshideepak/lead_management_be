@@ -12,9 +12,16 @@ const userSchema = new Schema({
         required: true,
         trim: true,
     },
+    name:{
+        type:String,
+        required:true
+    },
     role:{
         type: String,
         default:'ADMIN'
+    },
+    encryptedPassword:{
+        type: String
     },
     created_at: {
         type: Date

@@ -2,7 +2,9 @@ const UserModel = require('../models/userModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/userModel')
+const CryptoJS = require('crypto-js')
 const secretKey = '947089n*(&#)$(*#RHFJDvmbksduj'
+const CRYPTO_SECRET_KEY="947089n*(&#)$(*#RHFJDvmbksduj1234"
 
 module.exports = {
     //login authentication
@@ -35,12 +37,14 @@ module.exports = {
             if(email && password && name) {
                 const saltRounds = 10;
                 const hashedPassword = await bcrypt.hash(password, saltRounds);
+                const encryptedPassword = CryptoJS.AES.encrypt(password, CRYPTO_SECRET_KEY).toString();
                 const createUser = await userModel.create({
                     email: email,
                     password: hashedPassword,
                     name: name,
                     role: 'USER',
-                    status: status ? status : 'PENDING'
+                    encryptedPassword:encryptedPassword,
+                    status: status ? status : 'ACTIVE'
                 })
                 if(createUser){
                     return res.status(200).json({
@@ -59,7 +63,13 @@ module.exports = {
     //Get all  user for admin
     getAllUser:async (req, res)=>{
         try {
-            let activeQuery = {status: 'ACTIVE',role: 'USER'}
+            let activeQuery = {
+                $or: [
+                  { status: 'ACTIVE' },
+                  { status: 'PENDING' }
+                ],
+                role: 'USER'
+              };
             const allUser = await userModel.find(activeQuery)
             return res.status(200).json({ users: allUser})
         }catch(err){
@@ -68,23 +78,37 @@ module.exports = {
     },
 
     //Deactive user
-    removeUser: async( req, res) => {
-        const { userId} = req.query
-        try{
-            const user = userModel.findByIdAndUpdate(userId, {
-                status:'INACTIVE',
-            })
-            if(!user){
-                return res.status(404).json({message:'User not found'})
+    removeUser: async (req, res) => {
+        const { userId } = req.query;
+        try {
+          const user = await userModel.findByIdAndUpdate(
+            userId,
+            { status: 'INACTIVE' },
+            { new: true } 
+          ).select('-__v -password -tokens');
+      
+          if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+          }
+      
+          return res.status(200).json({
+            message: 'User deactivated successfully',
+            user: {
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.status
             }
-            return res.status(200).json({message:'User deactivated successfully'},user)
-        }catch(err) {
-            return res.status(500).json({
-                message: 'An error occurred while deactivating the user',
-                error: err.message
-            });
+          });
+        } catch (err) {
+          console.error('Deactivation error:', err);
+          return res.status(500).json({
+            message: 'An error occurred while deactivating the user',
+            error: err.message
+          });
         }
-    },
+      },
 
     forgotPassword: async (req, res) => {
         const { email, oldPassword, newPassword } = req.body
