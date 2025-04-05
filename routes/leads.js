@@ -4,6 +4,6 @@ const Controller = require('../controller/leadsController')
 const authMiddleware  = require('../authMiddleware')
 
 router.post('/createLead',Controller.createLead)
-router.get('/getAllLeads',authMiddleware,Controller.getAllLeads)
+router.post('/getAllLeads',authMiddleware,Controller.getAllLeads)
 
 module.exports = router;
