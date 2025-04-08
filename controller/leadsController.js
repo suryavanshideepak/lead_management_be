@@ -180,9 +180,7 @@ module.exports = {
 
     importLeadsFromCsv: async (req, res, next) => {
         try {
-            console.log(req.body)
             let leadsData = req.body.leads; 
-            console.log(leadsData)
             if (!Array.isArray(leadsData) || leadsData.length === 0) {
                 return res.status(400).json({ success: false, message: "Invalid or empty data" });
             }
