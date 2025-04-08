@@ -6,5 +6,8 @@ const authMiddleware  = require('../authMiddleware')
 router.post('/createLead',Controller.createLead)
 router.get('/getAllLeads',authMiddleware,Controller.getAllLeads)
 router.post('/importLeadsFromCsv',authMiddleware,Controller.getAllLeads)
+router.get('/getLeadById',authMiddleware,Controller.getLeadById)
+router.post('/assignLead',authMiddleware,Controller.assignLead)
+router.get('/getAllAssignee',authMiddleware,Controller.getAllAssignee)
 
 module.exports = router;

@@ -1,4 +1,6 @@
 const leadsModel = require('../models/leadsModel')
+const userModel = require('../models/userModel')
+const assignModel = require('../models/assignedLeadModel')
 
 module.exports = {
     createLead: async (req, res, next) => {
@@ -72,6 +74,85 @@ module.exports = {
             })
         } catch (error) {
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message })
+        }
+    },
+
+    getLeadById: async (req, res, next) => {
+        try {
+            const { id } = req.params;
+    
+            if (!id) {
+                return res.status(400).json({ success: false, message: "Lead ID is required" });
+            }
+    
+            const lead = await leadsModel.findById(id);
+    
+            if (!lead) {
+                return res.status(404).json({ success: false, message: "Lead not found" });
+            }
+    
+            res.status(200).json({
+                success: true,
+                message: "Lead fetched successfully",
+                data: lead
+            });
+    
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+        }
+    },
+
+   assignLead: async (req, res, next) => {
+    const { leadIds, userId } = req.body;
+
+    try {
+        if (!Array.isArray(leadIds) || leadIds.length === 0) {
+            return res.status(400).json({ success: false, message: "leadIds must be an array with at least one lead ID" });
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const leads = await leadsModel.find({ _id: { $in: leadIds } });
+        if (leads.length !== leadIds.length) {
+            return res.status(404).json({ success: false, message: "Some leads not found" });
+        }
+
+        await assignModel.updateMany(
+            { leadIds: { $in: leadIds } },
+            { $pull: { leadIds: { $in: leadIds } } }
+        );
+
+        let assignedLeads = await assignModel.findOne({ userId });
+
+        if (assignedLeads) {
+            assignedLeads.leadIds = [...new Set([...assignedLeads.leadIds, ...leadIds])]; 
+            assignedLeads.updated_at = new Date();
+            await assignedLeads.save();
+        } else {
+            assignedLeads = new assignModel({ leadIds, userId });
+            await assignedLeads.save();
+        }
+
+        res.status(201).json({
+            success: true,
+            message: "Leads assigned successfully",
+            data: assignedLeads,
+        });
+
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+        }
+    },
+
+    getAllAssignee: async (req, res, next) => {
+        try{
+            const assigneeData = await assignModel.find()
+            return res.status(200).json({ assigneeData: assigneeData})
+        }catch(error){
+            return res.status(500).send()
         }
     },
 

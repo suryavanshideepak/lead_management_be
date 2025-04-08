@@ -24,10 +24,12 @@ const userSchema = new Schema({
         type: String
     },
     created_at: {
-        type: Date
+        type: Date,
+        default:Date.now()
     },
     updated_at: {
-        type: Date
+        type: Date,
+        default:Date.now()
     },
     isStatus:{
         type:Boolean,
