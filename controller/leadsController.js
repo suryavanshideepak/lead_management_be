@@ -35,8 +35,8 @@ module.exports = {
 
     getAllLeads:async(req, res,next) => {
         try {
-            let { page, limit, desposition, search } = req.query
-    
+            let { page, limit, desposition, search, userId, fromDate, toDate } = req.query
+            console.log(userId)
             page = parseInt(page) || 1
             limit = parseInt(limit) || 10
     
@@ -54,6 +54,28 @@ module.exports = {
                     { name: { $regex: search, $options: 'i' } },
                     { phone: { $regex: search, $options: 'i' } } 
                 ]
+            }
+
+            if(fromDate || toDate){
+                filter.created_at = {}
+                if(fromDate){
+                    filter.created_at.$gte = new Date(fromDate);
+                }
+                if(toDate){
+                    const toDateObj = new Date(toDate)
+                    toDateObj.setHours(23,59,59,999);
+                    filter.created_at.$lte = toDateObj;
+                }
+            }
+
+            if(userId){
+                const assignedLeads = await assignModel.find({userId})
+                console.log(assignedLeads)
+                const leadIds = assignedLeads.flatMap((item) => item.leadIds);
+                console.log(leadIds)
+                if(leadIds.length >0){
+                    filter._id = { $in : leadIds };
+                }
             }
     
             const totalLeads = await leadsModel.countDocuments(filter)
