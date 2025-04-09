@@ -33,6 +33,21 @@ module.exports = {
         }
     },
 
+    updateLead: async ( req, res, next) => {
+        try {
+            const { id } = req.params;
+            const updatedLead = await leadsModel.findByIdAndUpdate(id, req.body, { new: true });
+        
+            if (!updatedLead) {
+              return res.status(404).json({ message: "Lead not found" });
+            }
+        
+            res.json({ message: "Lead updated successfully", lead: updatedLead });
+          } catch (error) {
+            res.status(500).json({ message: "Server Error", error });
+          }
+    },
+
     getAllLeads:async(req, res,next) => {
         try {
             let { page, limit, desposition, search, userId, fromDate, toDate } = req.query
@@ -70,9 +85,7 @@ module.exports = {
 
             if(userId){
                 const assignedLeads = await assignModel.find({userId})
-                console.log(assignedLeads)
                 const leadIds = assignedLeads.flatMap((item) => item.leadIds);
-                console.log(leadIds)
                 if(leadIds.length >0){
                     filter._id = { $in : leadIds };
                 }
