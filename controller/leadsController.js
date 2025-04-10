@@ -51,7 +51,6 @@ module.exports = {
     getAllLeads:async(req, res,next) => {
         try {
             let { page, limit, desposition, search, userId, fromDate, toDate } = req.query
-            console.log(userId)
             page = parseInt(page) || 1
             limit = parseInt(limit) || 10
     
@@ -209,5 +208,79 @@ module.exports = {
             console.error("Error in bulk insert:", error);
             res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
         }
-    }
+    },
+
+    getLeadsByEmployeeId: async (req, res, next) => {
+        try {
+            const { userId } = req.params;
+            let { page, limit, desposition, search, fromDate, toDate } = req.query;
+    
+            page = parseInt(page) || 1;
+            limit = parseInt(limit) || 10;
+    
+            if (page < 1 || limit < 1) {
+                return res.status(400).json({ success: false, message: 'Page and limit must be positive numbers' });
+            }    
+            const assignedLeads = await assignModel.findOne({ userId });
+    
+            if (!assignedLeads || assignedLeads.leadIds.length === 0) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'No leads found for this user.',
+                    data: [],
+                    page,
+                    limit,
+                    totalLeads: 0,
+                    totalPages: 0
+                });
+            }
+    
+            let filter = { _id: { $in: assignedLeads.leadIds } };
+    
+            if (desposition) {
+                filter.desposition = desposition;
+            }
+    
+            if (search) {
+                filter.$or = [
+                    { name: { $regex: search, $options: 'i' } },
+                    { phone: { $regex: search, $options: 'i' } }
+                ];
+            }
+    
+            if (fromDate || toDate) {
+                filter.created_at = {};
+                if (fromDate) {
+                    filter.created_at.$gte = new Date(fromDate);
+                }
+                if (toDate) {
+                    const toDateObj = new Date(toDate);
+                    toDateObj.setHours(23, 59, 59, 999);
+                    filter.created_at.$lte = toDateObj;
+                }
+            }
+    
+            const totalLeads = await leadsModel.countDocuments(filter);
+    
+            const leads = await leadsModel.find(filter)
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .sort({ created_at: -1 });
+    
+            res.status(200).json({
+                success: true,
+                message: "Leads fetched successfully",
+                page,
+                limit,
+                totalLeads,
+                totalPages: Math.ceil(totalLeads / limit),
+                data: leads
+            });
+    
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+        }
+    },
+    
+    
 }

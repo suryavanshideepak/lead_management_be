@@ -10,5 +10,6 @@ router.post('/importLeadsFromCsv',authMiddleware,Controller.importLeadsFromCsv)
 router.get('/getLeadById',authMiddleware,Controller.getLeadById)
 router.post('/assignLead',authMiddleware,Controller.assignLead)
 router.get('/getAllAssignee',authMiddleware,Controller.getAllAssignee)
+router.get('/getLeadsByEmployeeId/:userId',Controller.getLeadsByEmployeeId)
 
 module.exports = router;
