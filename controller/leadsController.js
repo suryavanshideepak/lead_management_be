@@ -5,7 +5,7 @@ const assignModel = require('../models/assignedLeadModel')
 module.exports = {
     createLead: async (req, res, next) => {
         try {
-            const { email, phone, name, address, city, state, pincode, product, disposition, status } = req.body
+            const { email, phone, name, address, city, state, pincode, product,quantity, price, disposition, status } = req.body
             
             if (!phone) {
                 return res.status(400).json({ success: false, message: 'phone is required' })
@@ -19,6 +19,8 @@ module.exports = {
                 state,
                 pincode,
                 product,
+                quantity,
+                price,
                 disposition,
                 status
             })
@@ -27,7 +29,7 @@ module.exports = {
             res.status(201).json({ success: true, message: 'Lead created successfully', data: savedLead })
         } catch (error) {
             if (error.code === 11000) {
-                return res.status(400).json({ success: false, message: 'Email or phone already exists' })
+                return res.status(400).json({ success: false, message: 'phone already exists' })
             }
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message })
         }
@@ -136,7 +138,7 @@ module.exports = {
         }
     },
 
-   assignLead: async (req, res, next) => {
+    assignLead: async (req, res, next) => {
     const { leadIds, userId } = req.body;
 
     try {

@@ -39,6 +39,16 @@ const leadsSchema = new Schema({
         type:String,
         trim:true
     },
+    price:{
+        type:String,
+        trim:true,
+        default:'2499'
+    },
+    quantity:{
+        type:String,
+        trim:true,
+        default:'1'
+    },
     desposition:{
         type: String,
         enum: ['New','Order Placed', 'Delivered', 'Callback', 'Ringing', 'Not Connected', 'Switch off'],   
