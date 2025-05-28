@@ -283,6 +283,60 @@ module.exports = {
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
         }
     },
-    
-    
+    getAllEmpoyeeSales: async( req, res, next)=>{
+
+    },
+    getTotalOrders: async (req,res,next) => {
+        try {
+            const { minPrice, maxPrice } = req.query;
+        
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+            const now = new Date
+        
+            const baseQuery = {
+              desposition: 'Order Verified',
+              created_at: { $gte: thirtyDaysAgo, $lt: now },
+            };
+
+            let leads = await leadsModel.find(baseQuery);
+            
+            leads = leads.filter((lead) => {
+              const price = parseFloat(lead.price || '0');
+              const quantity = parseInt(lead.quantity || '1');
+              const total = price * quantity;
+        
+              if (minPrice && total < parseFloat(minPrice)) return false;
+              if (maxPrice && total > parseFloat(maxPrice)) return false;
+        
+              return true;
+            });
+        
+            const totalOrders = leads.length;
+            const totalPrice = leads.reduce((sum, lead) => {
+              const price = parseFloat(lead.price || '0');
+              const quantity = parseInt(lead.quantity || '1');
+              return sum + (price * quantity);
+            }, 0);
+        
+            const verifiedOrders = await leadsModel.countDocuments({
+              desposition: 'Delivered',
+              created_at: { $gte: thirtyDaysAgo, $lt: now },
+            });
+
+            const averageTicketSize = totalOrders ? (totalPrice/totalOrders): 0
+        
+            res.json({
+              totalOrders,
+              verifiedOrders,
+              totalPrice,
+              averageTicketSize
+            });
+          } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Server error' });
+          }
+    }
 }

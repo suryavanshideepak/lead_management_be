@@ -51,7 +51,7 @@ const leadsSchema = new Schema({
     },
     desposition:{
         type: String,
-        enum: ['New','Order Placed', 'Delivered', 'Callback', 'Ringing', 'Not Connected', 'Switch off'],   
+        enum: ['New','Order Placed', 'Delivered', 'Callback', 'Ringing', 'Not Connected', 'Switch off','Order Verified','Cancel'],   
         default: 'New'     
     },
     created_at: {

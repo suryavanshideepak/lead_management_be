@@ -11,5 +11,7 @@ router.get('/getLeadById',authMiddleware,Controller.getLeadById)
 router.post('/assignLead',authMiddleware,Controller.assignLead)
 router.get('/getAllAssignee',authMiddleware,Controller.getAllAssignee)
 router.get('/getLeadsByEmployeeId/:userId',Controller.getLeadsByEmployeeId)
+router.get('/getAllEmpoyeeSales',authMiddleware,Controller.getAllEmpoyeeSales)
+router.get('/getAllTotalOrders',Controller.getTotalOrders)
 
 module.exports = router;
