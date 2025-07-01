@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const mongoURI = `${process.env.DBHOST}`; 
 
-mongoose.connect(mongoURI);
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const db = mongoose.connection;
 
